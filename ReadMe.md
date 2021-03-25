@@ -1,3 +1,5 @@
 # Produktutvecklings Projekt
+# Vitals app
 
-Detta är en map av alla filer för våran produktskod.
+In vitals_app branch you can find the source code to a currently unfinished app.
+So far it has some graphfical interface and navigation functionality.
