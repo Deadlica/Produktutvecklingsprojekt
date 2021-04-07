@@ -14,6 +14,7 @@
         android:layout_above="@id/bottom_navigation"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="14dp"
+        android:onClick="launchAdd"
         android:background="@drawable/round_button"
         app:srcCompat="@drawable/ic_add" />
 
