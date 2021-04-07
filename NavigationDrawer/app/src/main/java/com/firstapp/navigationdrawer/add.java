@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-import com.firstapp.navigationdrawer.ui.main.AddFragment;
+import com.firstapp.navigationdrawer.ui.add.AddFragment;
 
 public class add extends AppCompatActivity {
 
