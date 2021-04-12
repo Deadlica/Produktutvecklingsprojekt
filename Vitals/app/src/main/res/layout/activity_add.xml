@@ -20,7 +20,7 @@
         android:id="@+id/select_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add a picture"
+        android:text="@string/pfp_pic_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_picture" />
@@ -50,7 +50,7 @@
         app:layout_constraintTop_toBottomOf="@+id/FirstName" />
 
     <Spinner
-        android:id="@+id/gender"
+        android:id="@+id/Gender"
         android:layout_width="409dp"
         android:layout_height="50dp"
         android:background="@android:drawable/btn_dropdown"
@@ -68,10 +68,10 @@
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gender" />
+        app:layout_constraintTop_toBottomOf="@+id/Gender" />
 
     <Spinner
-        android:id="@+id/alarm"
+        android:id="@+id/Alarm"
         android:layout_width="409dp"
         android:layout_height="50dp"
         android:background="@android:drawable/btn_dropdown"
@@ -88,14 +88,14 @@
         android:background="@drawable/bluetooth_button_corner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/alarm"
+        app:layout_constraintTop_toBottomOf="@+id/Alarm"
         app:srcCompat="@drawable/ic_bluetooth_foreground" />
 
     <Button
         android:id="@+id/cancel"
         android:layout_width="203dp"
         android:layout_height="48dp"
-        android:text="Cancel"
+        android:text="@string/CancelBtn"
         android:onClick="cancelAdd"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -106,7 +106,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:onClick="saveAdd"
-        android:text="Done"
+        android:text="@string/DoneBtn"
         app:layout_constraintBaseline_toBaselineOf="@+id/cancel"
         app:layout_constraintStart_toEndOf="@+id/cancel" />
 
