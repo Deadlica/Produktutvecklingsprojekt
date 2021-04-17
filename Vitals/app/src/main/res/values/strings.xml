@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Vitals</string>
+    <string name="vitals">Vitals</string>
+    <string name="hint_resource">Gender</string>
+    <string name="Add">Add</string>
+    <string name="settings_name">Settings</string>
+    <string name="profiles_name">Profiles</string>
+    <string name="CancelBtn">Cancel</string>
+    <string name="DoneBtn">Done</string>
+    <string name="pfp_pic_btn">Add a picture</string>
+</resources>
