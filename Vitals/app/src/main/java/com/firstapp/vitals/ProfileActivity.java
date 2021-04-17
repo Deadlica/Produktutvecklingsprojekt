@@ -1,7 +1,13 @@
 package com.firstapp.vitals;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,27 +18,46 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
-    public static final int TEXT_REQUEST = 5;
-    private static final String LOG_TAG = ProfileActivity.class.getSimpleName();
-    private TextView mReplyName;
-    private TextView mReplyAge;
-    private TextView mReplyGender;
+    public static final int ADD_CONTACT_REQUEST = 1;
+
+    private ContactViewModel contactViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        FloatingActionButton buttonAddContact = findViewById(R.id.button_add_contact);
+        buttonAddContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfileActivity.this, AddActivity.class);
+                startActivityForResult(intent, ADD_CONTACT_REQUEST);
+            }
+        });
 
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(false);
 
-        //To be able to insert the reply intent messages
-        mReplyName = findViewById(R.id.text_name_reply);
-        mReplyAge = findViewById(R.id.text_age_reply);
-        mReplyGender = findViewById(R.id.text_gender_reply);
+        final ContactAdapter adapter = new ContactAdapter();
+        recyclerView.setAdapter(adapter);
+
+        contactViewModel = ViewModelProviders.of(this).get(ContactViewModel.class);
+        contactViewModel.getAllContacts().observe(this, new Observer<List<Contact>>() {
+            @Override
+            public void onChanged(@Nullable List<Contact> contacts) {
+                adapter.setContacts(contacts);
+            }
+        });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.ic_home);
@@ -56,59 +81,27 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    public void launchAdd(View view) {
-        Log.d(LOG_TAG, "Button clicked!");
-        Intent intent = new Intent(getApplicationContext(), AddActivity.class);
-        startActivityForResult(intent, TEXT_REQUEST);
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == TEXT_REQUEST) {
-            if(resultCode == RESULT_OK) {
+
+        if(requestCode == ADD_CONTACT_REQUEST && resultCode == RESULT_OK) {
                 String replyName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME);
                 String replyLastName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME2);
-                replyName += " " + replyLastName;
+                //replyName += " " + replyLastName;
                 String replyAge = data.getStringExtra(AddActivity.EXTRA_REPLYAGE);
                 String replyGender = data.getStringExtra(AddActivity.EXTRA_REPLYGENDER);
+                String replyAlarm = data.getStringExtra(AddActivity.EXTRA_REPLYALARM);
+                int priority = data.getIntExtra(AddActivity.EXTRA_REPLYPRIO, 1);
 
-                mReplyName.setText(replyName);
-                mReplyName.setVisibility(View.VISIBLE);
+                Contact contact = new Contact(replyName, replyLastName, replyAge, replyGender, replyAlarm, priority);
+                contactViewModel.insert(contact);
 
-                mReplyAge.setText(replyAge);
-                mReplyAge.setVisibility(View.VISIBLE);
-
-                mReplyGender.setText(replyGender);
-                mReplyGender.setVisibility(View.VISIBLE);
-            }
+            Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(this, "Profile not saved", Toast.LENGTH_SHORT).show();
         }
     }
 
-    //method to create view:
-    public TextView createATextView(int layout_width, int layout_height,
-                                    int align, String text,
-                                    int fontSize, int margin,
-                                    int padding) {
-
-        TextView textView_item_name = new TextView(this);
-
-        //LayoutParams layoutParams = new LayoutParams(
-        //LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        //layoutParams.gravity = Gravity.LEFT;
-        RelativeLayout.LayoutParams _params = new RelativeLayout.LayoutParams(layout_width, layout_height);
-
-        _params.setMargins(margin, margin, margin, margin);
-        _params.addRule(align);
-        textView_item_name.setLayoutParams(_params);
-
-        textView_item_name.setText(text);
-        textView_item_name.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
-        textView_item_name.setTextColor(Color.parseColor("#000000"));
-        // textView1.setBackgroundColor(0xff66ff66); // hex color 0xAARRGGBB
-        textView_item_name.setPadding(padding, padding, padding, padding);
-
-        return textView_item_name;
-    }
 }
