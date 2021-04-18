@@ -23,11 +23,11 @@ public class ContactViewModel extends AndroidViewModel {
     }
 
     public void update(Contact contact) {
-        repository.insert(contact);
+        repository.update(contact);
     }
 
     public void delete(Contact contact) {
-        repository.insert(contact);
+        repository.delete(contact);
     }
 
     public void deleteAllContacts() {

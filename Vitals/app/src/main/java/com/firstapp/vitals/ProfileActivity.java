@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,6 +15,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -59,21 +62,34 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                contactViewModel.delete(adapter.getContactAt(viewHolder.getAdapterPosition()));
+                Toast.makeText(ProfileActivity.this, "Profile deleted", Toast.LENGTH_SHORT).show();
+            }
+        }).attachToRecyclerView(recyclerView);
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.ic_home);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch(item.getItemId()){
+                switch (item.getItemId()) {
                     case R.id.ic_home:
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return true;
                     case R.id.ic_profile:
                         return true;
                     case R.id.ic_settings:
                         startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return true;
                 }
                 return false;
@@ -85,23 +101,40 @@ public class ProfileActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == ADD_CONTACT_REQUEST && resultCode == RESULT_OK) {
-                String replyName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME);
-                String replyLastName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME2);
-                //replyName += " " + replyLastName;
-                String replyAge = data.getStringExtra(AddActivity.EXTRA_REPLYAGE);
-                String replyGender = data.getStringExtra(AddActivity.EXTRA_REPLYGENDER);
-                String replyAlarm = data.getStringExtra(AddActivity.EXTRA_REPLYALARM);
-                int priority = data.getIntExtra(AddActivity.EXTRA_REPLYPRIO, 1);
+        if (requestCode == ADD_CONTACT_REQUEST && resultCode == RESULT_OK) {
+            String replyName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME);
+            String replyLastName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME2);
+            //replyName += " " + replyLastName;
+            String replyAge = data.getStringExtra(AddActivity.EXTRA_REPLYAGE);
+            String replyGender = data.getStringExtra(AddActivity.EXTRA_REPLYGENDER);
+            String replyAlarm = data.getStringExtra(AddActivity.EXTRA_REPLYALARM);
+            int priority = data.getIntExtra(AddActivity.EXTRA_REPLYPRIO, 1);
 
-                Contact contact = new Contact(replyName, replyLastName, replyAge, replyGender, replyAlarm, priority);
-                contactViewModel.insert(contact);
+            Contact contact = new Contact(replyName, replyLastName, replyAge, replyGender, replyAlarm, priority);
+            contactViewModel.insert(contact);
 
             Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             Toast.makeText(this, "Profile not saved", Toast.LENGTH_SHORT).show();
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete_all_profiles:
+                contactViewModel.deleteAllContacts();
+                Toast.makeText(this, "All profiles deleted", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

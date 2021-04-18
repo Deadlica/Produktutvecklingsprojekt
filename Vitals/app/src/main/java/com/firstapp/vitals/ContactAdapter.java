@@ -45,6 +45,10 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         notifyDataSetChanged();
     }
 
+    public Contact getContactAt(int position) {
+        return contacts.get(position);
+    }
+
     class ContactHolder extends RecyclerView.ViewHolder {
         private TextView textViewFirstName;
         private TextView textViewLastName;
