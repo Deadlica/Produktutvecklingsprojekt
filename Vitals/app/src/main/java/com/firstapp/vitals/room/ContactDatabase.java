@@ -1,15 +1,12 @@
-package com.firstapp.vitals;
+package com.firstapp.vitals.room;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.TypeConverter;
-import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(entities = {Contact.class}, version = 1, exportSchema = false)

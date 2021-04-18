@@ -1,4 +1,4 @@
-package com.firstapp.vitals;
+package com.firstapp.vitals.room;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,13 +6,35 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.firstapp.vitals.R;
 
-public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactHolder> {
-    private List<Contact> contacts = new ArrayList<>();
+public class ContactAdapter extends ListAdapter<Contact, ContactAdapter.ContactHolder> {
+    private OnItemClickListener listener;
+
+    public ContactAdapter() {
+        super(DIFF_CALLBACK);
+    }
+
+    private static final DiffUtil.ItemCallback<Contact> DIFF_CALLBACK = new DiffUtil.ItemCallback<Contact>() {
+        @Override
+        public boolean areItemsTheSame(Contact oldItem, Contact newItem) {
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(Contact oldItem, Contact newItem) {
+            return oldItem.getFirstName().equals(newItem.getFirstName()) &&
+                   oldItem.getLastName().equals(newItem.getLastName()) &&
+                   oldItem.getAge().equals(newItem.getAge()) &&
+                   oldItem.getGender().equals(newItem.getGender()) &&
+                    oldItem.getAlarm().equals(newItem.getAlarm()) &&
+                    oldItem.getPriority() == newItem.getPriority();
+        }
+    };
 
     @NonNull
     @Override
@@ -24,7 +46,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
 
     @Override
     public void onBindViewHolder(@NonNull ContactHolder holder, int position) {
-        Contact currentContact = contacts.get(position);
+        Contact currentContact = getItem(position);
         String name = currentContact.getFirstName();
         name += " ";
         name += currentContact.getLastName();
@@ -35,18 +57,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         holder.textViewPriority.setText(String.valueOf(currentContact.getPriority()));
     }
 
-    @Override
-    public int getItemCount() {
-        return contacts.size();
-    }
-
-    public void setContacts(List<Contact> contacts) {
-        this.contacts = contacts;
-        notifyDataSetChanged();
-    }
-
     public Contact getContactAt(int position) {
-        return contacts.get(position);
+        return getItem(position);
     }
 
     class ContactHolder extends RecyclerView.ViewHolder {
@@ -65,6 +77,24 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
             textViewGender = itemView.findViewById(R.id.text_view_gender);
             textViewAlarm = itemView.findViewById(R.id.text_view_alarm);
             textViewPriority = itemView.findViewById(R.id.text_view_priority);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onItemClick(getItem(position));
+                    }
+                }
+            });
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(Contact contact);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 }

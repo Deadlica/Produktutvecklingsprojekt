@@ -1,4 +1,4 @@
-package com.firstapp.vitals;
+package com.firstapp.vitals.room;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

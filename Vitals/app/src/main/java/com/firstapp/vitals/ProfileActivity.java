@@ -4,25 +4,22 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firstapp.vitals.room.Contact;
+import com.firstapp.vitals.room.ContactAdapter;
+import com.firstapp.vitals.room.ContactViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -30,6 +27,7 @@ import java.util.List;
 
 public class ProfileActivity extends AppCompatActivity {
     public static final int ADD_CONTACT_REQUEST = 1;
+    public static final int EDIT_CONTACT_REQUEST = 2;
 
     private ContactViewModel contactViewModel;
 
@@ -42,7 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         buttonAddContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ProfileActivity.this, AddActivity.class);
+                Intent intent = new Intent(ProfileActivity.this, AddEditContactActivity.class);
                 startActivityForResult(intent, ADD_CONTACT_REQUEST);
             }
         });
@@ -58,7 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
         contactViewModel.getAllContacts().observe(this, new Observer<List<Contact>>() {
             @Override
             public void onChanged(@Nullable List<Contact> contacts) {
-                adapter.setContacts(contacts);
+                adapter.submitList(contacts);
             }
         });
 
@@ -74,6 +72,21 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(ProfileActivity.this, "Profile deleted", Toast.LENGTH_SHORT).show();
             }
         }).attachToRecyclerView(recyclerView);
+
+        adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Contact contact) {
+                Intent intent = new Intent(ProfileActivity.this, AddEditContactActivity.class);
+                intent.putExtra(AddEditContactActivity.EXTRA_ID, contact.getId());
+                intent.putExtra(AddEditContactActivity.EXTRA_REPLYNAME, contact.getFirstName());
+                intent.putExtra(AddEditContactActivity.EXTRA_REPLYNAME2, contact.getLastName());
+                intent.putExtra(AddEditContactActivity.EXTRA_REPLYAGE, contact.getAge());
+                intent.putExtra(AddEditContactActivity.EXTRA_REPLYGENDER, contact.getGender());
+                intent.putExtra(AddEditContactActivity.EXTRA_REPLYALARM, contact.getAlarm());
+                intent.putExtra(AddEditContactActivity.EXTRA_REPLYPRIO, contact.getPriority());
+                startActivityForResult(intent, EDIT_CONTACT_REQUEST);
+            }
+        });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.ic_home);
@@ -102,19 +115,42 @@ public class ProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == ADD_CONTACT_REQUEST && resultCode == RESULT_OK) {
-            String replyName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME);
-            String replyLastName = data.getStringExtra(AddActivity.EXTRA_REPLYNAME2);
+            String replyName = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYNAME);
+            String replyLastName = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYNAME2);
             //replyName += " " + replyLastName;
-            String replyAge = data.getStringExtra(AddActivity.EXTRA_REPLYAGE);
-            String replyGender = data.getStringExtra(AddActivity.EXTRA_REPLYGENDER);
-            String replyAlarm = data.getStringExtra(AddActivity.EXTRA_REPLYALARM);
-            int priority = data.getIntExtra(AddActivity.EXTRA_REPLYPRIO, 1);
+            String replyAge = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYAGE);
+            String replyGender = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYGENDER);
+            String replyAlarm = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYALARM);
+            int priority = data.getIntExtra(AddEditContactActivity.EXTRA_REPLYPRIO, 1);
 
             Contact contact = new Contact(replyName, replyLastName, replyAge, replyGender, replyAlarm, priority);
             contactViewModel.insert(contact);
 
             Toast.makeText(this, "Profile saved", Toast.LENGTH_SHORT).show();
-        } else {
+        }
+        else if (requestCode == EDIT_CONTACT_REQUEST && resultCode == RESULT_OK) {
+            int id = data.getIntExtra(AddEditContactActivity.EXTRA_ID, -1);
+
+            if(id == -1) {
+                Toast.makeText(this, "Contact can't be updated", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String replyName = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYNAME);
+            String replyLastName = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYNAME2);
+            //replyName += " " + replyLastName;
+            String replyAge = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYAGE);
+            String replyGender = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYGENDER);
+            String replyAlarm = data.getStringExtra(AddEditContactActivity.EXTRA_REPLYALARM);
+            int priority = data.getIntExtra(AddEditContactActivity.EXTRA_REPLYPRIO, 1);
+
+            Contact contact = new Contact(replyName, replyLastName, replyAge, replyGender, replyAlarm, priority);
+            contact.setId(id);
+            contactViewModel.update(contact);
+
+            Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
+        }
+        else {
             Toast.makeText(this, "Profile not saved", Toast.LENGTH_SHORT).show();
         }
     }

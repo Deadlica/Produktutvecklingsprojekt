@@ -17,7 +17,10 @@ import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-public class AddActivity extends AppCompatActivity {
+import com.firstapp.vitals.bluetooth.BluetoothActivity;
+
+public class AddEditContactActivity extends AppCompatActivity {
+    public static final String EXTRA_ID = "com.firstapp.vitals.extra.ID";
     public static final String EXTRA_REPLYNAME = "com.firstapp.vitals.extra.REPLYNAME";
     public static final String EXTRA_REPLYNAME2 = "com.firstapp.vitals.extra.REPLYNAME2";
     public static final String EXTRA_REPLYAGE = "com.firstapp.vitals.extra.REPLYAGE";
@@ -53,7 +56,32 @@ public class AddActivity extends AppCompatActivity {
         numberPickerPriority.setMaxValue(10);
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
-        setTitle("Add Profile");
+
+        Intent intent = getIntent();
+
+        if (intent.hasExtra(EXTRA_ID)) {
+            setTitle("Edit Profile");
+            firstName.setText(intent.getStringExtra(EXTRA_REPLYNAME));
+            lastName.setText(intent.getStringExtra(EXTRA_REPLYNAME2));
+            age.setText(intent.getStringExtra(EXTRA_REPLYAGE));
+            numberPickerPriority.setValue(intent.getIntExtra(EXTRA_REPLYPRIO, 1));
+
+            String genderCheck = intent.getStringExtra(EXTRA_REPLYGENDER);
+            Spinner genderDropdown = findViewById(R.id.Gender);
+            String[] genderOptions = new String[]{"Male", "Female", genderCheck};
+            HintAdapter hintAdapter = new HintAdapter(this, android.R.layout.simple_list_item_1, genderOptions);
+            genderDropdown.setAdapter(hintAdapter);
+            genderDropdown.setSelection(hintAdapter.getCount());
+
+            String alarmCheck = intent.getStringExtra(EXTRA_REPLYALARM);
+            Spinner alarmDropdown = findViewById(R.id.Alarm);
+            String[] alarmOptions = new String[]{"Silke", "Sluttning", "Stjärnskådning", "Stråla", "Topp", "Vid kusten", alarmCheck};
+            HintAdapter hintAdapter1 = new HintAdapter(this, android.R.layout.simple_list_item_1, alarmOptions);
+            alarmDropdown.setAdapter(hintAdapter1);
+            alarmDropdown.setSelection(hintAdapter1.getCount());
+        } else {
+            setTitle("Add Profile");
+        }
 
         select_image = findViewById(R.id.select_image);
         profile_picture = findViewById(R.id.profile_picture);
@@ -65,17 +93,19 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        Spinner genderDropdown = findViewById(R.id.Gender);
-        String[] genderOptions = new String[]{"Male", "Female", "Gender"};
-        HintAdapter hintAdapter = new HintAdapter(this, android.R.layout.simple_list_item_1, genderOptions);
-        genderDropdown.setAdapter(hintAdapter);
-        genderDropdown.setSelection(hintAdapter.getCount());
+        if(!(intent.hasExtra(EXTRA_ID))) {
+            Spinner genderDropdown = findViewById(R.id.Gender);
+            String[] genderOptions = new String[]{"Male", "Female", "Gender"};
+            HintAdapter hintAdapter = new HintAdapter(this, android.R.layout.simple_list_item_1, genderOptions);
+            genderDropdown.setAdapter(hintAdapter);
+            genderDropdown.setSelection(hintAdapter.getCount());
 
-        Spinner alarmDropdown = findViewById(R.id.Alarm);
-        String[] alarmOptions = new String[]{"Silke", "Sluttning", "Stjärnskådning", "Stråla", "Topp", "Vid kusten", "Alarmsignal"};
-        HintAdapter hintAdapter1 = new HintAdapter(this, android.R.layout.simple_list_item_1, alarmOptions);
-        alarmDropdown.setAdapter(hintAdapter1);
-        alarmDropdown.setSelection(hintAdapter1.getCount());
+            Spinner alarmDropdown = findViewById(R.id.Alarm);
+            String[] alarmOptions = new String[]{"Silke", "Sluttning", "Stjärnskådning", "Stråla", "Topp", "Vid kusten", "Alarmsignal"};
+            HintAdapter hintAdapter1 = new HintAdapter(this, android.R.layout.simple_list_item_1, alarmOptions);
+            alarmDropdown.setAdapter(hintAdapter1);
+            alarmDropdown.setSelection(hintAdapter1.getCount());
+        }
     }
 
     void imageChooser() {
@@ -107,8 +137,16 @@ public class AddActivity extends AppCompatActivity {
         String replyAlarm = alarm.getSelectedItem().toString();
         int priority = numberPickerPriority.getValue();
 
-        if(replyFirstName.trim().isEmpty()) {
+        if (replyFirstName.trim().isEmpty()) {
             Toast.makeText(this, "Please enter your first name.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (replyLastName.trim().isEmpty()) {
+            Toast.makeText(this, "Please enter your last name.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (replyAge.trim().isEmpty()) {
+            Toast.makeText(this, "Please enter your age.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -119,6 +157,11 @@ public class AddActivity extends AppCompatActivity {
         data.putExtra(EXTRA_REPLYGENDER, replyGender);
         data.putExtra(EXTRA_REPLYALARM, replyAlarm);
         data.putExtra(EXTRA_REPLYPRIO, priority);
+
+        int id = getIntent().getIntExtra(EXTRA_ID, -1);
+        if(id != -1) {
+            data.putExtra(EXTRA_ID, id);
+        }
 
         setResult(RESULT_OK, data);
         finish();
@@ -143,27 +186,16 @@ public class AddActivity extends AppCompatActivity {
 
     }
 
-    public void cancelAdd(View view) {
-        finish();
+    public void setSpinText(Spinner spin, String text) {
+        for (int i = 0; i < spin.getAdapter().getCount(); i++) {
+            if (spin.getAdapter().getItem(i).toString().contains(text)) {
+                spin.setSelection(i);
+            }
+        }
     }
 
-    public void saveAdd(View view) {
-        String replyFirstName = firstName.getText().toString();
-        String replyLastName = lastName.getText().toString();
-        String replyAge = age.getText().toString();
-        String replyGender = gender.getSelectedItem().toString();
-        String replyAlarm = alarm.getSelectedItem().toString();
-
-        Intent replyIntent = new Intent();
-        replyIntent.putExtra(EXTRA_REPLYNAME, replyFirstName);
-        replyIntent.putExtra(EXTRA_REPLYNAME2, replyLastName);
-        replyIntent.putExtra(EXTRA_REPLYAGE, replyAge);
-        replyIntent.putExtra(EXTRA_REPLYGENDER, replyGender);
-        replyIntent.putExtra(EXTRA_REPLYALARM, replyAlarm);
-
-
-        setResult(RESULT_OK, replyIntent);
-        finish();
-
+    public void bluetoothSearch(View view) {
+        Intent intent = new Intent(this, BluetoothActivity.class);
+        startActivity(intent);
     }
 }
