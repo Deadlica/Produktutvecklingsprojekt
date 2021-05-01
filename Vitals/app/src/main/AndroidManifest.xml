@@ -14,12 +14,8 @@
         android:roundIcon="@mipmap/ic_app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Vitals">
-        <activity android:name=".bluetooth.LedControl"></activity>
-        <activity
-            android:name=".bluetooth.BluetoothActivity"
-            android:label="Bluetooth"
-            android:launchMode="singleTop"
-            android:parentActivityName=".AddEditContactActivity" />
+        <activity android:name=".bluetooth.MonitoringScreen"></activity>
+        <activity android:name=".bluetooth.BluetoothActivity" />
         <activity
             android:name=".AddEditContactActivity"
             android:label="@string/Add"
